@@ -5,11 +5,16 @@ import time
 import pandas as pd
 from bs4 import BeautifulSoup
 
-from flask import *
 import json
 from datetime import datetime
+import psycopg2
 
-app = Flask(__name__)
+conn = psycopg2.connect(database="kijiji_ad_data",
+                        host="localhost",
+                        user="postgres",
+                        password="********",
+                        port="5432")
+
 
 
 
