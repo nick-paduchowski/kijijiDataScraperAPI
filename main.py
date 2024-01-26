@@ -12,10 +12,15 @@ import psycopg2
 conn = psycopg2.connect(database="kijiji_ad_data",
                         host="localhost",
                         user="postgres",
-                        password="********",
-                        port="5432")
+                        password="12qazqaz",
+                        port="5432",
+                                )
+if conn:
+    print("Successfully connected to database")
+else:
+    print("Connection to database encounter an error")
 
-
+cur = conn.cursor()
 
 
 base_url = "https://www.kijiji.ca"
@@ -73,12 +78,15 @@ def get_ad_info(pageNumber, category):
                 ad_links.append(base_url + l["href"])
         for advert in (ad_links):
                 # Get Webpage Information & Parse With BeautifulSoup
-            print(advert)
             response = requests.get(advert)
             soup = BeautifulSoup(response.text, 'lxml')
 
                 # Get Ad Title in Try/Catch Statement
             try:
+                cur.execute("SELECT * FROM your_table_name WHERE title = %s", (title,))
+                row = cur.fetchone()
+                if row is not None:
+                    continue  # Skips the current iteration of the loop if any data is returned
                 title = soup.find("h1").text
             except AttributeError:
                 title = ""
@@ -91,7 +99,7 @@ def get_ad_info(pageNumber, category):
 
                 # Get Date Posted
             try:
-                  date_posted = soup.find("div", attrs={"itemprop": "datePosted"}).time['datetime']
+                  date_posted = soup.find("div", attrs={"itemprop": "datePosted"})['content']
             except AttributeError:
                 date_posted = ""
 
@@ -122,6 +130,11 @@ def get_ad_info(pageNumber, category):
                 "url": advert,
                 "image_url": mainImg_URL
              })
+            cur.execute(
+                    """INSERT INTO ads (category, title, price, description, date, address, url, image_url ) VALUES (
+                    %s, %s, %s, %s, %s, %s, %s, %s)""",
+                    (category, title, price, description, date_posted, adCity, advert, mainImg_URL))
+            conn.commit()
         return ad_info
 
     elif(pageNumber > 1):
@@ -159,13 +172,11 @@ def get_ad_info(pageNumber, category):
 
             # Get Date Posted
             try:
-                date_posted = soup.find("div", attrs={"itemprop": "datePosted"}).time['datetime']
+                date_posted = soup.find("div", attrs={"itemprop": "datePosted"})['content']
             except AttributeError:
                 date_posted = ""
-                continue
             except TypeError:
                 date_posted = ""
-                continue
 
             # Get Ad Description
             try:
@@ -195,6 +206,10 @@ def get_ad_info(pageNumber, category):
                 "image_url": mainImg_URL
             })
 
+            cur.execute("""INSERT INTO ads (category, title, price, description, date, address, url, image_url ) VALUES
+                        (%s, %s, %s, %s, %s, %s, %s, %s)""", (category, title, price, description, date_posted,
+                                                             adCity, advert, mainImg_URL))
+            conn.commit()
         return ad_info
 
 def loadDatabase():
@@ -205,13 +220,11 @@ def loadDatabase():
         webpage =  BeautifulSoup(response.text, "lxml")
         numOfPages = getNumOfPages(webpage)
         for x in range(1, numOfPages):
-            print(x)
             result = get_ad_info(x, obj)
-            print(result)
 
 
 loadDatabase()
-
+conn.close()
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
