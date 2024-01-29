@@ -1,0 +1,25 @@
+{
+  "name": "kijijidatascraper",
+  "version": "1.0.0",
+  "description": "This is an API I'm currently developing since I noticed on RAPID API there wasn't an API that served Kijiji Ad Data. Planning to use PostgreSQL as a database to store the data so I don't have to scrap the website every time someone makes a request. Should eventually be able to query by category, date, and price.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nick-paduchowski/kijijiDataScraperAPI.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nick-paduchowski/kijijiDataScraperAPI/issues"
+  },
+  "homepage": "https://github.com/nick-paduchowski/kijijiDataScraperAPI#readme",
+  "dependencies": {
+    "dotenv": "^16.4.1",
+    "express": "^4.18.2",
+    "pg": "^8.11.3"
+  }
+}

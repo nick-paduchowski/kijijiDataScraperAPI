@@ -37,12 +37,9 @@ response = requests.get(page_1_url)
 #print(soup)
 
 categories = {
-    'pets': {
-        'page1URL' : 'https://www.kijiji.ca/b-pets/canada/c112l0',
-        'nextPageTemplate': 'https://www.kijiji.ca/b-pets/canada/page-2/c112l0'
-    },
     'jobs': {
-        'page1URL' : 'https://www.kijiji.ca/b-jobs/canada/c45l0'
+        'page1URL' : 'https://www.kijiji.ca/b-jobs/canada/c45l0',
+        'nextPageTemplate': 'https://www.kijiji.ca/b-pets/canada/page-2/c112l0'
     }
 }
 def getNumOfPages(webpage):
