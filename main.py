@@ -25,21 +25,64 @@ cur = conn.cursor()
 
 base_url = "https://www.kijiji.ca"
 
-#URL for first test page
-
-page_1_url = "https://www.kijiji.ca/b-reptiles-amphibians/canada/c14654004l0"
-
-response = requests.get(page_1_url)
-
-#Use Beautiful Soup to parse HTML response
-
 
 #print(soup)
 
 categories = {
-    'jobs': {
-        'page1URL' : 'https://www.kijiji.ca/b-jobs/canada/c45l0',
-        'nextPageTemplate': 'https://www.kijiji.ca/b-pets/canada/page-2/c112l0'
+    #'accounting-management': {
+    #    'page1URL' : 'https://www.kijiji.ca/b-accounting-management-jobs/canada/c58l0',
+    #},
+    'construction-trades': {
+        'page1URL': 'https://www.kijiji.ca/b-construction-trades-jobs/canada/c50l0',
+    },
+    'drivers-security':{
+        'page1URL': 'https://www.kijiji.ca/b-driver-security-jobs/canada/c148l0',
+    },
+
+    'childcare': {
+        'page1URL': 'https://www.kijiji.ca/b-childcare-jobs/canada/c47l0',
+    },
+    'general-labour': {
+        'page1URL': 'https://www.kijiji.ca/b-general-labour-jobs/canada/c149l0',
+    },
+    'other-jobs': {
+        'page1URL': 'https://www.kijiji.ca/b-other-jobs/canada/c62l0',
+    },
+    'cleaning': {
+        'page1URL': 'https://www.kijiji.ca/b-cleaning-housekeeper-jobs/canada/c146l0',
+    },
+    'healthcare': {
+        'page1URL': 'https://www.kijiji.ca/b-healthcare-jobs/canada/c898l0',
+    },
+    'hospitality': {
+        'page1URL': 'https://www.kijiji.ca/b-bar-food-hospitality-jobs/canada/c60l0',
+    },
+    'sales': {
+        'page1URL': 'https://www.kijiji.ca/b-sales-retail-jobs/canada/c61l0',
+    },
+    'part-time-and-students': {
+        'page1URL': 'https://www.kijiji.ca/b-part-time-student-jobs/canada/c59l0',
+    },
+    'customer-service':{
+        'page1URL': 'https://www.kijiji.ca/b-customer-service-jobs/canada/c147l0',
+    },
+    'hair-stylist-salon': {
+        'page1URL': 'https://www.kijiji.ca/b-hair-stylist-salon-jobs/canada/c150l0',
+    },
+    'office-manager-receptionist': {
+        'page1URL': 'https://www.kijiji.ca/b-office-manager-receptionist-jobs/canada/c46l0',
+    },
+    'computers-programming': {
+        'page1URL': 'https://www.kijiji.ca/b-programmer-computer-jobs/canada/c54l0',
+    },
+    'graphic-desgin': {
+        'page1URL': 'https://www.kijiji.ca/b-graphic-web-design-jobs/canada/c152l0',
+    },
+    'tv-media-fashion': {
+        'page1URL': 'https://www.kijiji.ca/b-tv-media-fashion-jobs/canada/c55l0',
+    },
+    'cannabis-sector': {
+        'page1URL': 'https://www.kijiji.ca/b-cannabis-sector/canada/c420l0',
     }
 }
 def getNumOfPages(webpage):
@@ -63,9 +106,13 @@ def get_ad_info(pageNumber, category):
         ad_links = []
         page_url = categories[category]['page1URL']
         print(page_url)
-        response = requests.get(page_url)
+        #Fetching the page URL
+        response = requests.get(page_url, headers={ "user-agent" : "npaduchowski@hotmail.com", "message" : "Permission obtained to use data from Kijiji." })
+        # Use Beautiful Soup to parse HTML response
         soup = BeautifulSoup(response.text, "lxml")
+        #Get all the data with the data-testid of listing-title
         ads = soup.find_all("h3", attrs={"data-testid": ["listing-title"]})
+        # Filtering out 3rd party ads
         filtered_ads = [x for x in ads if ("cas-channel" not in x["class"]) & ("third-party" not in x["class"])]
         for ad in filtered_ads:
             # Parse the link from the ad
@@ -80,11 +127,12 @@ def get_ad_info(pageNumber, category):
 
                 # Get Ad Title in Try/Catch Statement
             try:
-                cur.execute("SELECT * FROM your_table_name WHERE title = %s", (title,))
+                 # Skips the current iteration of the loop if any data is returned
+                title = soup.find("h1").text
+                cur.execute("SELECT * FROM job_data WHERE title = %s", (title,))
                 row = cur.fetchone()
                 if row is not None:
-                    continue  # Skips the current iteration of the loop if any data is returned
-                title = soup.find("h1").text
+                    continue
             except AttributeError:
                 title = ""
 
@@ -117,6 +165,16 @@ def get_ad_info(pageNumber, category):
             except AttributeError:
                 mainImg_URL = ""
 
+            try:
+                jobType = soup.find("div", attrs={"itemprop": "employmentType"}).text
+            except AttributeError:
+                jobType = "Please Contact"
+
+            try:
+                companyName = soup.find("div", attrs={"itemprop": "hiringOrganization"}).text
+            except AttributeError:
+                companyName = ""
+
             ad_info.append({
                 "category": category,
                 "title": title,
@@ -127,17 +185,20 @@ def get_ad_info(pageNumber, category):
                 "url": advert,
                 "image_url": mainImg_URL
              })
-            cur.execute(
-                    """INSERT INTO ads (category, title, price, description, date, address, url, image_url ) VALUES (
-                    %s, %s, %s, %s, %s, %s, %s, %s)""",
-                    (category, title, price, description, date_posted, adCity, advert, mainImg_URL))
+            cur.execute("""INSERT INTO job_data (category, title, description, date, address, url, img_url, job_type, company_name) VALUES
+                       (%s, %s, %s, %s, %s, %s, %s, %s, %s)""", (category, title, description, date_posted,
+                        adCity, advert, mainImg_URL, jobType, companyName))
             conn.commit()
+            time.sleep(5)
         return ad_info
 
     elif(pageNumber > 1):
         ad_info = []
         ad_links = []
-        page_url = 'https://www.kijiji.ca/b-' + category + '/canada/page-' + str(pageNumber) + '/c112l0'
+        originalURL = categories[category]['page1URL']
+        cut_off_point = originalURL.rfind('/')
+        url_id = originalURL[cut_off_point:]
+        page_url = 'https://www.kijiji.ca/b-' + category + '/canada/page-' + str(pageNumber) + str(url_id)
         print(page_url)
         response = requests.get(page_url)
         soup = BeautifulSoup(response.text, "lxml")
@@ -162,10 +223,10 @@ def get_ad_info(pageNumber, category):
                 title = ""
 
                 # Get Ad Price
-            try:
-                price = soup.find("span", attrs={"itemprop": "price"}).text
-            except AttributeError:
-                price = ""
+            #try:
+            #    price = soup.find("span", attrs={"itemprop": "price"}).text
+            #except AttributeError:
+            #    price = ""
 
             # Get Date Posted
             try:
@@ -192,21 +253,33 @@ def get_ad_info(pageNumber, category):
             except AttributeError:
                 mainImg_URL = ""
 
-            ad_info.append({
-                "category": category,
-                "title": title,
-                "price": price,
-                "description": description,
-                "date_posted": date_posted,
-                "address": adCity,
-                "url": advert,
-                "image_url": mainImg_URL
-            })
+            try:
+                jobType = soup.find("div", attrs={"itemprop": "employmentType"}).text
+            except AttributeError:
+                jobType = "Please Contact"
 
-            cur.execute("""INSERT INTO ads (category, title, price, description, date, address, url, image_url ) VALUES
-                        (%s, %s, %s, %s, %s, %s, %s, %s)""", (category, title, price, description, date_posted,
-                                                             adCity, advert, mainImg_URL))
+            try:
+                companyName = soup.find("div", attrs={"itemprop": "hiringOrganization"}).text
+            except AttributeError:
+                companyName = ""
+
+            #ad_info.append({
+            #    "category": category,
+            #    "title": title,
+            #    "description": description,
+            #   "date_posted": date_posted,
+            #    "address": adCity,
+            #    "url": advert,
+            #    "image_url": mainImg_URL,
+            #    "job_type": jobType,
+            #    "company_name": companyName
+            #})
+
+            cur.execute("""INSERT INTO job_data (category, title, description, date, address, url, img_url, job_type, company_name) VALUES
+                        (%s, %s, %s, %s, %s, %s, %s, %s, %s)""", (category, title, description, date_posted,
+                                                             adCity, advert, mainImg_URL, jobType, companyName))
             conn.commit()
+            time.sleep(5)
         return ad_info
 
 def loadDatabase():
@@ -216,7 +289,8 @@ def loadDatabase():
         response = requests.get(categories[obj]['page1URL'])
         webpage =  BeautifulSoup(response.text, "lxml")
         numOfPages = getNumOfPages(webpage)
-        for x in range(1, numOfPages):
+        for x in range(48, numOfPages):
+            print("Page Number: " + str(x) + " And Category: " + str(obj))
             result = get_ad_info(x, obj)
 
 
