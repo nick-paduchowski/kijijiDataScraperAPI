@@ -29,9 +29,9 @@ base_url = "https://www.kijiji.ca"
 #print(soup)
 
 categories = {
-    #'accounting-management': {
-    #    'page1URL' : 'https://www.kijiji.ca/b-accounting-management-jobs/canada/c58l0',
-    #},
+    'accounting-management': {
+        'page1URL' : 'https://www.kijiji.ca/b-accounting-management-jobs/canada/c58l0',
+    },
     'construction-trades': {
         'page1URL': 'https://www.kijiji.ca/b-construction-trades-jobs/canada/c50l0',
     },
@@ -137,10 +137,10 @@ def get_ad_info(pageNumber, category):
                 title = ""
 
                     # Get Ad Price
-            try:
-                 price = soup.find("span", attrs={"itemprop": "price"}).text
-            except AttributeError:
-                 price = ""
+            #try:
+            #     price = soup.find("span", attrs={"itemprop": "price"}).text
+            #except AttributeError:
+            #     price = ""
 
                 # Get Date Posted
             try:
@@ -156,9 +156,14 @@ def get_ad_info(pageNumber, category):
 
                 # Get Ad City
             try:
-                adCity = soup.find("span", attrs={"itemprop": "address"}).text
+                adCity = soup.find("span", attrs={"itemprop": "addressLocality"}).text
             except AttributeError:
                 adCity = ""
+
+            try:
+                adProvince = soup.find("span", attrs={"itemprop": "addressRegion"}).text
+            except AttributeError:
+                adProvince = ""
 
             try:
                  mainImg_URL = soup.find("div", attrs={"class": "mainImage"}).picture.img['src']
@@ -166,29 +171,30 @@ def get_ad_info(pageNumber, category):
                 mainImg_URL = ""
 
             try:
-                jobType = soup.find("div", attrs={"itemprop": "employmentType"}).text
+                jobType = soup.find("dd", attrs={"itemprop": "employmentType"}).text
             except AttributeError:
                 jobType = "Please Contact"
 
             try:
-                companyName = soup.find("div", attrs={"itemprop": "hiringOrganization"}).text
+                companyName = soup.find("dd", attrs={"itemprop": "hiringOrganization"}).text
             except AttributeError:
                 companyName = ""
 
-            ad_info.append({
+            print({
                 "category": category,
                 "title": title,
-                "price": price,
+                "company_name": companyName,
                 "description": description,
                 "date_posted": date_posted,
-                "address": adCity,
+                "city": adCity,
+                "province": adProvince,
                 "url": advert,
-                "image_url": mainImg_URL
+                "image_url": mainImg_URL,
              })
-            cur.execute("""INSERT INTO job_data (category, title, description, date, address, url, img_url, job_type, company_name) VALUES
-                       (%s, %s, %s, %s, %s, %s, %s, %s, %s)""", (category, title, description, date_posted,
-                        adCity, advert, mainImg_URL, jobType, companyName))
-            conn.commit()
+            #cur.execute("""INSERT INTO job_data (category, title, description, date, city, province, url, img_url, job_type, company_name) VALUES
+            #           (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (category, title, description, date_posted,
+            #            adCity, adProvince, advert, mainImg_URL, jobType, companyName))
+            #conn.commit()
             time.sleep(5)
         return ad_info
 
@@ -244,9 +250,14 @@ def get_ad_info(pageNumber, category):
 
             # Get Ad City
             try:
-                adCity = soup.find("span", attrs={"itemprop": "address"}).text
+                adCity = soup.find("span", attrs={"itemprop": "addressLocality"}).text
             except AttributeError:
                 adCity = ""
+
+            try:
+                adProvince = soup.find("span", attrs={"itemprop": "addressRegion"}).text
+            except AttributeError:
+                adProvince = ""
 
             try:
                 mainImg_URL = soup.find("div", attrs={"class": "mainImage"}).picture.img['src']
@@ -263,22 +274,22 @@ def get_ad_info(pageNumber, category):
             except AttributeError:
                 companyName = ""
 
-            #ad_info.append({
-            #    "category": category,
-            #    "title": title,
-            #    "description": description,
-            #   "date_posted": date_posted,
-            #    "address": adCity,
-            #    "url": advert,
-            #    "image_url": mainImg_URL,
-            #    "job_type": jobType,
-            #    "company_name": companyName
-            #})
-
-            cur.execute("""INSERT INTO job_data (category, title, description, date, address, url, img_url, job_type, company_name) VALUES
-                        (%s, %s, %s, %s, %s, %s, %s, %s, %s)""", (category, title, description, date_posted,
-                                                             adCity, advert, mainImg_URL, jobType, companyName))
-            conn.commit()
+            print({
+                "category": category,
+                "title": title,
+                "description": description,
+               "date_posted": date_posted,
+                "city": adCity,
+                "province": adProvince,
+                "url": advert,
+                "image_url": mainImg_URL,
+                "job_type": jobType,
+                "company_name": companyName
+            })
+            #cur.execute("""INSERT INTO job_data (category, title, description, date, city, province, url, img_url, job_type, company_name) VALUES
+            #            (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (category, title, description, date_posted,
+            #                                                 adCity, adProvince, advert, mainImg_URL, jobType, companyName))
+            #conn.commit()
             time.sleep(5)
         return ad_info
 
@@ -289,7 +300,7 @@ def loadDatabase():
         response = requests.get(categories[obj]['page1URL'])
         webpage =  BeautifulSoup(response.text, "lxml")
         numOfPages = getNumOfPages(webpage)
-        for x in range(48, numOfPages):
+        for x in range(1, numOfPages):
             print("Page Number: " + str(x) + " And Category: " + str(obj))
             result = get_ad_info(x, obj)
 
