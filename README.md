@@ -1,2 +1,9 @@
 # kijijiDataScraperAPI
-This is an API I'm currently developing since I noticed on RAPID API there wasn't an API that served Kijiji Ad Data. Planning to use PostgreSQL as a database to store the data so I don't have to scrap the website every time someone makes a request. Should eventually be able to query by category, date, and price. 
+This is a Kijiji Job Data API for people who would like to add Kijiji Job Data to their application.
+
+You can currently query this API for all job data or job data by category.
+
+
+# Future Plans
+
+Eventually, you will be able to query this API based on the time posted, title, city, province, etc...
