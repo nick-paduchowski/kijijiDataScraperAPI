@@ -27,58 +27,58 @@ base_url = "https://www.kijiji.ca"
 
 
 categories = {
-    #'accounting-management': {
-    #    'page1URL' : 'https://www.kijiji.ca/b-accounting-management-jobs/canada/c58l0',
-    #},
-    #'construction-trades': {
-    #    'page1URL': 'https://www.kijiji.ca/b-construction-trades-jobs/canada/c50l0',
-    #},
-    #'drivers-security':{
-    #    'page1URL': 'https://www.kijiji.ca/b-driver-security-jobs/canada/c148l0',
-    #},
+    'accounting-management': {
+        'page1URL' : 'https://www.kijiji.ca/b-accounting-management-jobs/canada/c58l0',
+    },
+    'construction-trades': {
+        'page1URL': 'https://www.kijiji.ca/b-construction-trades-jobs/canada/c50l0',
+    },
+    'drivers-security':{
+        'page1URL': 'https://www.kijiji.ca/b-driver-security-jobs/canada/c148l0',
+    },
 
-    #'childcare': {
-    #    'page1URL': 'https://www.kijiji.ca/b-childcare-jobs/canada/c47l0',
-    #},
-    #'general-labour': {
-    #    'page1URL': 'https://www.kijiji.ca/b-general-labour-jobs/canada/c149l0',
-    #},
-    #'other-jobs': {
-    #    'page1URL': 'https://www.kijiji.ca/b-other-jobs/canada/c62l0',
-    #},
-    #'cleaning': {
-    #    'page1URL': 'https://www.kijiji.ca/b-cleaning-housekeeper-jobs/canada/c146l0',
-    #},
-    #'healthcare': {
-    #    'page1URL': 'https://www.kijiji.ca/b-healthcare-jobs/canada/c898l0',
-    #},
-    #'hospitality': {
-    #    'page1URL': 'https://www.kijiji.ca/b-bar-food-hospitality-jobs/canada/c60l0',
-    #},
-    #'sales': {
-    #    'page1URL': 'https://www.kijiji.ca/b-sales-retail-jobs/canada/c61l0',
-    #},
-    #'part-time-and-students': {
-    #    'page1URL': 'https://www.kijiji.ca/b-part-time-student-jobs/canada/c59l0',
-    #},
-    #'customer-service':{
-    #    'page1URL': 'https://www.kijiji.ca/b-customer-service-jobs/canada/c147l0',
-    #},
-    #'hair-stylist-salon': {
-    #    'page1URL': 'https://www.kijiji.ca/b-hair-stylist-salon-jobs/canada/c150l0',
-    #},
-    #'office-manager-receptionist': {
-    #    'page1URL': 'https://www.kijiji.ca/b-office-manager-receptionist-jobs/canada/c46l0',
-    #},
-    #'computers-programming': {
-    #    'page1URL': 'https://www.kijiji.ca/b-programmer-computer-jobs/canada/c54l0',
-    #},
-    #'graphic-desgin': {
-    #    'page1URL': 'https://www.kijiji.ca/b-graphic-web-design-jobs/canada/c152l0',
-    #},
-    #'tv-media-fashion': {
-    #    'page1URL': 'https://www.kijiji.ca/b-tv-media-fashion-jobs/canada/c55l0',
-    #},
+    'childcare': {
+        'page1URL': 'https://www.kijiji.ca/b-childcare-jobs/canada/c47l0',
+    },
+    'general-labour': {
+        'page1URL': 'https://www.kijiji.ca/b-general-labour-jobs/canada/c149l0',
+    },
+    'other-jobs': {
+        'page1URL': 'https://www.kijiji.ca/b-other-jobs/canada/c62l0',
+    },
+    'cleaning': {
+        'page1URL': 'https://www.kijiji.ca/b-cleaning-housekeeper-jobs/canada/c146l0',
+    },
+    'healthcare': {
+        'page1URL': 'https://www.kijiji.ca/b-healthcare-jobs/canada/c898l0',
+    },
+    'hospitality': {
+        'page1URL': 'https://www.kijiji.ca/b-bar-food-hospitality-jobs/canada/c60l0',
+    },
+    'sales': {
+        'page1URL': 'https://www.kijiji.ca/b-sales-retail-jobs/canada/c61l0',
+    },
+    'part-time-and-students': {
+        'page1URL': 'https://www.kijiji.ca/b-part-time-student-jobs/canada/c59l0',
+    },
+    'customer-service':{
+        'page1URL': 'https://www.kijiji.ca/b-customer-service-jobs/canada/c147l0',
+    },
+    'hair-stylist-salon': {
+        'page1URL': 'https://www.kijiji.ca/b-hair-stylist-salon-jobs/canada/c150l0',
+    },
+    'office-manager-receptionist': {
+        'page1URL': 'https://www.kijiji.ca/b-office-manager-receptionist-jobs/canada/c46l0',
+    },
+    'computers-programming': {
+        'page1URL': 'https://www.kijiji.ca/b-programmer-computer-jobs/canada/c54l0',
+    },
+    'graphic-desgin': {
+        'page1URL': 'https://www.kijiji.ca/b-graphic-web-design-jobs/canada/c152l0',
+    },
+    'tv-media-fashion': {
+        'page1URL': 'https://www.kijiji.ca/b-tv-media-fashion-jobs/canada/c55l0',
+    },
     'cannabis-sector': {
         'page1URL': 'https://www.kijiji.ca/b-cannabis-sector/canada/c420l0',
     }
