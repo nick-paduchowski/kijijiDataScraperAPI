@@ -67,18 +67,18 @@ categories = {
     #'hair-stylist-salon': {
     #    'page1URL': 'https://www.kijiji.ca/b-hair-stylist-salon-jobs/canada/c150l0',
     #},
-    'office-manager-receptionist': {
-        'page1URL': 'https://www.kijiji.ca/b-office-manager-receptionist-jobs/canada/c46l0',
-    },
-    'computers-programming': {
-        'page1URL': 'https://www.kijiji.ca/b-programmer-computer-jobs/canada/c54l0',
-    },
-    'graphic-desgin': {
-        'page1URL': 'https://www.kijiji.ca/b-graphic-web-design-jobs/canada/c152l0',
-    },
-    'tv-media-fashion': {
-        'page1URL': 'https://www.kijiji.ca/b-tv-media-fashion-jobs/canada/c55l0',
-    },
+    #'office-manager-receptionist': {
+    #    'page1URL': 'https://www.kijiji.ca/b-office-manager-receptionist-jobs/canada/c46l0',
+    #},
+    #'computers-programming': {
+    #    'page1URL': 'https://www.kijiji.ca/b-programmer-computer-jobs/canada/c54l0',
+    #},
+    #'graphic-desgin': {
+    #    'page1URL': 'https://www.kijiji.ca/b-graphic-web-design-jobs/canada/c152l0',
+    #},
+    #'tv-media-fashion': {
+    #    'page1URL': 'https://www.kijiji.ca/b-tv-media-fashion-jobs/canada/c55l0',
+    #},
     'cannabis-sector': {
         'page1URL': 'https://www.kijiji.ca/b-cannabis-sector/canada/c420l0',
     }
@@ -122,62 +122,73 @@ def get_ad_info(pageNumber, category):
                 # Get Webpage Information & Parse With BeautifulSoup
             response = requests.get(advert)
             soup = BeautifulSoup(response.text, 'lxml')
-
-                # Get Ad Title in Try/Catch Statement
             try:
-                 # Skips the current iteration of the loop if any data is returned
-                title = soup.find("h1").text
-                cur.execute("SELECT * FROM job_data WHERE title = %s", (title,))
+                # Skips the current iteration of the loop if any data is returned
+                cur.execute("SELECT * FROM job_data WHERE url = %s", (advert,))
                 row = cur.fetchone()
                 if row is not None:
+                    print("Already in database")
                     continue
+            except AttributeError:
+                print("AttributeError")
+
+            # Get Ad Title in Try/Catch Statement
+            try:
+                title = soup.find("h1").text
             except AttributeError:
                 title = ""
 
-                    # Get Ad Price
+            #Getting Ad Price is no longer part of this API
+            # Get Ad Price
             #try:
             #     price = soup.find("span", attrs={"itemprop": "price"}).text
             #except AttributeError:
             #     price = ""
 
-                # Get Date Posted
+            # Get Date Posted
             try:
                   date_posted = soup.find("div", attrs={"itemprop": "datePosted"})['content']
             except AttributeError:
                 date_posted = ""
 
-                # Get Ad Description
+            # Get Ad Description
             try:
                   description = soup.find("div", attrs={"itemprop": "description"}).text
             except AttributeError:
                  description = ""
 
-                # Get Ad City
+            # Get Ad City
             try:
                 adCity = soup.find("span", attrs={"itemprop": "addressLocality"}).text
             except AttributeError:
                 adCity = ""
 
+
+            # Getting the Ad Province
             try:
                 adProvince = soup.find("span", attrs={"itemprop": "addressRegion"}).text
             except AttributeError:
                 adProvince = ""
 
+            # Getting main img url
             try:
                  mainImg_URL = soup.find("div", attrs={"class": "mainImage"}).picture.img['src']
             except AttributeError:
                 mainImg_URL = ""
 
+            # Getting the employment type - full-time, part-time, contract
             try:
                 jobType = soup.find("dd", attrs={"itemprop": "employmentType"}).text
             except AttributeError:
                 jobType = "Please Contact"
 
+            # Gets the hiring organization, if none is found on the ad page
             try:
                 companyName = soup.find("dd", attrs={"itemprop": "hiringOrganization"}).text
             except AttributeError:
                 companyName = ""
 
+            # Prints the ad data so I can verify it while the script is running
             print({
                 "category": category,
                 "title": title,
@@ -189,23 +200,32 @@ def get_ad_info(pageNumber, category):
                 "url": advert,
                 "image_url": mainImg_URL,
              })
+            # Inserts the data into database
             cur.execute("""INSERT INTO job_data (category, title, description, date, city, province, url, img_url, job_type, company_name) VALUES
                     (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (category, title, description, date_posted,
                                                                     adCity, adProvince, advert, mainImg_URL,
                                                                     jobType, companyName))
+            # Commits the data to the database immediately in case of a script or connection failure
             conn.commit()
+            # Waits 5 seconds before looping again to ensure I don't accidentally DDoS a server lol
             time.sleep(5)
         return ad_info
 
     elif(pageNumber > 1):
         ad_info = []
         ad_links = []
+        # Gets the base URL
         originalURL = categories[category]['page1URL']
+        # Cut out the end from the firt page URL by finding the last / in the string
         cut_off_point = originalURL.rfind('/')
         url_id = originalURL[cut_off_point:]
+        # Formatting the url for pages after the first page
         page_url = 'https://www.kijiji.ca/b-' + category + '/canada/page-' + str(pageNumber) + str(url_id)
+        # Print the page_url to confirm progress
         print(page_url)
+        # Get the webpage
         response = requests.get(page_url)
+        # Use BeautifulSoup to parse the returned webpage
         soup = BeautifulSoup(response.text, "lxml")
         ads = soup.find_all("h3", attrs={"data-testid": ["listing-title"]})
         filtered_ads = [x for x in ads if ("cas-channel" not in x["class"]) & ("third-party" not in x["class"])]
