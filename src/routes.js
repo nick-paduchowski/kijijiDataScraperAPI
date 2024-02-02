@@ -7,6 +7,7 @@ const router = Router();
 router.get('/', controller.displayWelcomeMessage);
 router.get('/category',controller.getJobsByCategory);
 router.get('/all', controller.getAllJobs);
+router.get('/jobs', controller.getJobs)
 
 
 module.exports = router;
