@@ -26,49 +26,47 @@ cur = conn.cursor()
 base_url = "https://www.kijiji.ca"
 
 
-#print(soup)
-
 categories = {
-    'accounting-management': {
-        'page1URL' : 'https://www.kijiji.ca/b-accounting-management-jobs/canada/c58l0',
-    },
-    'construction-trades': {
-        'page1URL': 'https://www.kijiji.ca/b-construction-trades-jobs/canada/c50l0',
-    },
-    'drivers-security':{
-        'page1URL': 'https://www.kijiji.ca/b-driver-security-jobs/canada/c148l0',
-    },
+    #'accounting-management': {
+    #    'page1URL' : 'https://www.kijiji.ca/b-accounting-management-jobs/canada/c58l0',
+    #},
+    #'construction-trades': {
+    #    'page1URL': 'https://www.kijiji.ca/b-construction-trades-jobs/canada/c50l0',
+    #},
+    #'drivers-security':{
+    #    'page1URL': 'https://www.kijiji.ca/b-driver-security-jobs/canada/c148l0',
+    #},
 
-    'childcare': {
-        'page1URL': 'https://www.kijiji.ca/b-childcare-jobs/canada/c47l0',
-    },
-    'general-labour': {
-        'page1URL': 'https://www.kijiji.ca/b-general-labour-jobs/canada/c149l0',
-    },
-    'other-jobs': {
-        'page1URL': 'https://www.kijiji.ca/b-other-jobs/canada/c62l0',
-    },
-    'cleaning': {
-        'page1URL': 'https://www.kijiji.ca/b-cleaning-housekeeper-jobs/canada/c146l0',
-    },
-    'healthcare': {
-        'page1URL': 'https://www.kijiji.ca/b-healthcare-jobs/canada/c898l0',
-    },
-    'hospitality': {
-        'page1URL': 'https://www.kijiji.ca/b-bar-food-hospitality-jobs/canada/c60l0',
-    },
-    'sales': {
-        'page1URL': 'https://www.kijiji.ca/b-sales-retail-jobs/canada/c61l0',
-    },
-    'part-time-and-students': {
-        'page1URL': 'https://www.kijiji.ca/b-part-time-student-jobs/canada/c59l0',
-    },
-    'customer-service':{
-        'page1URL': 'https://www.kijiji.ca/b-customer-service-jobs/canada/c147l0',
-    },
-    'hair-stylist-salon': {
-        'page1URL': 'https://www.kijiji.ca/b-hair-stylist-salon-jobs/canada/c150l0',
-    },
+    #'childcare': {
+    #    'page1URL': 'https://www.kijiji.ca/b-childcare-jobs/canada/c47l0',
+    #},
+    #'general-labour': {
+    #    'page1URL': 'https://www.kijiji.ca/b-general-labour-jobs/canada/c149l0',
+    #},
+    #'other-jobs': {
+    #    'page1URL': 'https://www.kijiji.ca/b-other-jobs/canada/c62l0',
+    #},
+    #'cleaning': {
+    #    'page1URL': 'https://www.kijiji.ca/b-cleaning-housekeeper-jobs/canada/c146l0',
+    #},
+    #'healthcare': {
+    #    'page1URL': 'https://www.kijiji.ca/b-healthcare-jobs/canada/c898l0',
+    #},
+    #'hospitality': {
+    #    'page1URL': 'https://www.kijiji.ca/b-bar-food-hospitality-jobs/canada/c60l0',
+    #},
+    #'sales': {
+    #    'page1URL': 'https://www.kijiji.ca/b-sales-retail-jobs/canada/c61l0',
+    #},
+    #'part-time-and-students': {
+    #    'page1URL': 'https://www.kijiji.ca/b-part-time-student-jobs/canada/c59l0',
+    #},
+    #'customer-service':{
+    #    'page1URL': 'https://www.kijiji.ca/b-customer-service-jobs/canada/c147l0',
+    #},
+    #'hair-stylist-salon': {
+    #    'page1URL': 'https://www.kijiji.ca/b-hair-stylist-salon-jobs/canada/c150l0',
+    #},
     'office-manager-receptionist': {
         'page1URL': 'https://www.kijiji.ca/b-office-manager-receptionist-jobs/canada/c46l0',
     },
@@ -191,10 +189,11 @@ def get_ad_info(pageNumber, category):
                 "url": advert,
                 "image_url": mainImg_URL,
              })
-            #cur.execute("""INSERT INTO job_data (category, title, description, date, city, province, url, img_url, job_type, company_name) VALUES
-            #           (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (category, title, description, date_posted,
-            #            adCity, adProvince, advert, mainImg_URL, jobType, companyName))
-            #conn.commit()
+            cur.execute("""INSERT INTO job_data (category, title, description, date, city, province, url, img_url, job_type, company_name) VALUES
+                    (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (category, title, description, date_posted,
+                                                                    adCity, adProvince, advert, mainImg_URL,
+                                                                    jobType, companyName))
+            conn.commit()
             time.sleep(5)
         return ad_info
 
@@ -218,6 +217,15 @@ def get_ad_info(pageNumber, category):
                 ad_links.append(base_url + l["href"])
         for advert in (ad_links):
             print(advert)
+            try:
+                # Skips the current iteration of the loop if any data is returned
+                cur.execute("SELECT * FROM job_data WHERE url = %s", (advert,))
+                row = cur.fetchone()
+                if row is not None:
+                    print("Already in database")
+                    continue
+            except AttributeError:
+                print("AttributeError")
             # Get Webpage Information & Parse With BeautifulSoup
             response = requests.get(advert)
             soup = BeautifulSoup(response.text, 'lxml')
@@ -235,6 +243,8 @@ def get_ad_info(pageNumber, category):
             #    price = ""
 
             # Get Date Posted
+
+
             try:
                 date_posted = soup.find("div", attrs={"itemprop": "datePosted"})['content']
             except AttributeError:
@@ -265,12 +275,12 @@ def get_ad_info(pageNumber, category):
                 mainImg_URL = ""
 
             try:
-                jobType = soup.find("div", attrs={"itemprop": "employmentType"}).text
+                jobType = soup.find("dd", attrs={"itemprop": "employmentType"}).text
             except AttributeError:
                 jobType = "Please Contact"
 
             try:
-                companyName = soup.find("div", attrs={"itemprop": "hiringOrganization"}).text
+                companyName = soup.find("dd", attrs={"itemprop": "hiringOrganization"}).text
             except AttributeError:
                 companyName = ""
 
@@ -286,10 +296,11 @@ def get_ad_info(pageNumber, category):
                 "job_type": jobType,
                 "company_name": companyName
             })
-            #cur.execute("""INSERT INTO job_data (category, title, description, date, city, province, url, img_url, job_type, company_name) VALUES
-            #            (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (category, title, description, date_posted,
-            #                                                 adCity, adProvince, advert, mainImg_URL, jobType, companyName))
-            #conn.commit()
+
+            cur.execute("""INSERT INTO job_data (category, title, description, date, city, province, url, img_url, job_type, company_name) VALUES
+                            (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (category, title, description, date_posted,
+                                                                 adCity, adProvince, advert, mainImg_URL, jobType, companyName))
+            conn.commit()
             time.sleep(5)
         return ad_info
 
@@ -300,9 +311,14 @@ def loadDatabase():
         response = requests.get(categories[obj]['page1URL'])
         webpage =  BeautifulSoup(response.text, "lxml")
         numOfPages = getNumOfPages(webpage)
-        for x in range(1, numOfPages):
-            print("Page Number: " + str(x) + " And Category: " + str(obj))
-            result = get_ad_info(x, obj)
+        if (obj == "customer-service"):
+            for x in range(5, numOfPages):
+                print("Page Number: " + str(x) + " And Category: " + str(obj))
+                result = get_ad_info(x, obj)
+        else:
+            for x in range(2, numOfPages):
+                print("Page Number: " + str(x) + " And Category: " + str(obj))
+                result = get_ad_info(x, obj)
 
 
 loadDatabase()
