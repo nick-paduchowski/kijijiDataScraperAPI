@@ -1,12 +1,7 @@
 # Importing Packages to be Used
-
 import requests
 import time
-import pandas as pd
 from bs4 import BeautifulSoup
-
-import json
-from datetime import datetime
 import psycopg2
 
 conn = psycopg2.connect(database="kijiji_ad_data",
