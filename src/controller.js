@@ -17,15 +17,6 @@ const displayWelcomeMessage = (req, res) => {
   }
 };
 
-const getJobsByCategory = (req, res) => {
-  const category = req.query.category;
-  console.log(category);
-  pool.query(queries.getJobsByCategory, [category], (error, results) => {
-    if (error) throw error;
-    res.status(200).json(results.rows);
-  });
-};
-
 const getAllJobs = (req, res) => {
   pool.query(queries.getAllJobs, (error, results) => {
     if (error) {
@@ -62,7 +53,6 @@ const getJobs = (req, res) => {
 
 module.exports = {
   displayWelcomeMessage,
-  getJobsByCategory,
   getAllJobs,
   getJobs,
 };
