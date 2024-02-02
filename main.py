@@ -3,11 +3,17 @@ import requests
 import time
 from bs4 import BeautifulSoup
 import psycopg2
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DB_PASS = os.geten('USER_PASS')
 
 conn = psycopg2.connect(database="kijiji_ad_data",
                         host="localhost",
                         user="postgres",
-                        password="12qazqaz",
+                        password=DB_PASS,
                         port="5432",
                                 )
 if conn:
