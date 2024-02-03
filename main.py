@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DB_PASS = os.geten('USER_PASS')
+DB_PASS = os.getenv('USER_PASS')
 
 conn = psycopg2.connect(database="kijiji_ad_data",
                         host="localhost",

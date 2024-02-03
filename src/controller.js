@@ -18,6 +18,14 @@ const displayWelcomeMessage = (req, res) => {
 };
 
 const getAllJobs = (req, res) => {
+  const queryString = req.query;
+  if (queryString != "undefined"){
+    res.status(400).json({
+      "Bad Request": "You are not allowed to include query params at this endpoint."
+    })
+  }
+  const queryDB = true;
+  if(queryDB === true){
   pool.query(queries.getAllJobs, (error, results) => {
     if (error) {
       console.log("An error occurred");
@@ -25,6 +33,7 @@ const getAllJobs = (req, res) => {
     }
     res.status(200).json(results.rows);
   });
+}
 };
 
 const getJobs = (req, res) => {
