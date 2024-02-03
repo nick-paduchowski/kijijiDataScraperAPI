@@ -23,6 +23,5 @@ const buildQuery = (parameters) => {
 
 module.exports = {
     getAllJobs,
-    getJobsByCategory,
     buildQuery,
 }
